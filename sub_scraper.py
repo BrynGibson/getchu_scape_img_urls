@@ -15,6 +15,7 @@ class SubScraper:
         self.df = df
         options = Options()
         options.add_argument("--headless")
+        options.add_argument('--no-sandbox')
 
         # webdriver location for desktop
 
@@ -54,7 +55,7 @@ class SubScraper:
 
                 # will repeat the request 5 times if the request times out
 
-                while attempts < 6:
+                while attempts < 5:
 
                     r = requests.get(url, cookies=self.cookies)
 
