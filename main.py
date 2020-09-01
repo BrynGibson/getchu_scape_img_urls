@@ -5,6 +5,6 @@
 
 import mother_scraper
 
-scraper = mother_scraper.MotherScraper(r"C:\Users\sloth\Desktop\scrape\getchu-scrape\urls_fixed.csv")
+scraper = mother_scraper.MotherScraper(urls_loc="./urls_fixed.csv", img_urls_loc="./img_urls_clean.csv")
 
-scraper.scrape()
+scraper.download_images()
