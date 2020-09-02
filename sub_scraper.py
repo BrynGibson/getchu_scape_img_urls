@@ -117,6 +117,9 @@ class SubScraper:
                 print("end of urls")
                 complete = True
 
+            except ValueError:
+                time.sleep(0.0005)
+
     def download_images(self):
 
         # creating directory to save images to
@@ -170,3 +173,5 @@ class SubScraper:
                 print("end of urls")
                 complete = True
 
+            except ValueError:
+                time.sleep(0.0005)

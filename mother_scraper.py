@@ -38,10 +38,13 @@ class MotherScraper:
     # This class oversees the feeding of urls and dataframes to the sub_scraper class
     # This class then executes the scrape method on all sub_scraper instances in parallel
 
-    def __init__(self, urls_loc=None, img_urls_loc=None):
+    def __init__(self, urls_loc=None, img_urls_loc=None, workers=10):
 
         self.img_url_gen = None
         self.url_gen = None
+
+        # number of subscrapers
+        self.workers= workers
 
         if urls_loc:
             self.urls_df = pd.read_csv(urls_loc, index_col=["url"])
@@ -57,22 +60,24 @@ class MotherScraper:
         if img_urls_loc:
             self.img_urls_df = pd.read_csv(img_urls_loc)
             self.img_url_gen = img_url_gen(img_urls_df=self.img_urls_df)
-     
+
 
         # initializing sub scrapers, this may take a few mins
 
         print("initializing sub scrapers, this may take a few mins")
-        self.sub_scrapers = [SubScraper(url_gen=self.url_gen, df_urls=self.urls_df, img_url_gen=self.img_url_gen) for i in range(0, 40)]
+        self.sub_scrapers = [SubScraper(url_gen=self.url_gen, df_urls=self.urls_df, img_url_gen=self.img_url_gen) for i in range(0, self.workers)]
 
     def scrape(self):
 
         # this method is will execute the scrape methods of all sub_scrapers in parallel
         for scraper in self.sub_scrapers:
-            threading.Thread(target=scraper.scrape()).start()
+            threading.Thread(target=scraper.scrape).start()
 
         # writing the results to csv
         self.urls_df.to_csv("img_urls.csv", index="url")
 
     def download_images(self):
+
         for scraper in self.sub_scrapers:
-            threading.Thread(target=scraper.download_images()).start()
+            threading.Thread(target=scraper.download_images).start()
+

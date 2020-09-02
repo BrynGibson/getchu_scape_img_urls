@@ -5,6 +5,6 @@
 
 import mother_scraper
 
-scraper = mother_scraper.MotherScraper(urls_loc="./urls_fixed.csv", img_urls_loc="./img_urls_clean.csv")
+scraper = mother_scraper.MotherScraper(urls_loc="./urls_fixed.csv", img_urls_loc="./img_urls_clean.csv", workers=40)
 
 scraper.download_images()
