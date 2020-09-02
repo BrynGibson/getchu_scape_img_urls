@@ -18,6 +18,8 @@ class SubScraper:
         self.url_gen = url_gen
         self.df_urls = df_urls
         self.img_url_gen = img_url_gen
+
+        # adding
         options = Options()
         options.add_argument("--headless")
         options.add_argument('--no-sandbox')
@@ -26,19 +28,22 @@ class SubScraper:
 
         print("setting up driver")
 
-        self.driver = webdriver.Chrome(r"C:\Users\sloth\Desktop\int app dev\intermediate-app-dev-concepts\05-python-5-exceptions-automation-testing\chromedriver.exe", options=options)
+        #self.driver = webdriver.Chrome(r"C:\Users\sloth\Desktop\int app dev\intermediate-app-dev-concepts\05-python-5-exceptions-automation-testing\chromedriver.exe", options=options)
 
+        self.driver = webdriver.Chrome(r"./chromedriver.exe", options=options)
 
         # do age verification for getchu
 
         print("loading test page for age verify")
         self.driver.get("http://www.getchu.com/soft.phtml?id=1077034")
 
+        # verifying age
         age_verify_link = self.driver.find_element_by_link_text("[は い]")
         print("clicking link")
         age_verify_link.click()
 
         # creating cookies to use with requests library
+
         cookies_list = self.driver.get_cookies()
         cookies_dict = []
         for cookie in cookies_list:
@@ -93,6 +98,8 @@ class SubScraper:
                             full_urls = None
 
                         else:
+                            # if the request was ok but no character images were present
+
                             print(f'response ok, characters not found, url {url}')
                             self.df_urls.loc[url, "response"] = 200
                             self.df_urls.loc[url, "found_char_imgs"] = False
@@ -118,6 +125,9 @@ class SubScraper:
                 complete = True
 
             except ValueError:
+
+                # too many threads request from generator at the sametime sometimes it will throw a value error, this
+                # will sleep for a short amount of time to allow the generator to recover
                 time.sleep(0.0005)
 
     def download_images(self):
@@ -137,6 +147,7 @@ class SubScraper:
 
                 ref_url = url_df["url"]
 
+                # parsing list of img_urls from dataframe
                 img_urls = literal_eval(url_df["img_urls"])
 
                 for img_url in img_urls:
@@ -147,16 +158,20 @@ class SubScraper:
 
                     while attempts < 5:
 
+                        # making request for image using cookies and referal url
+
                         r = requests.get(img_url, cookies=self.cookies, headers={'referer': ref_url}, stream=True)
 
                         if r.status_code == 200:
 
                             try:
+                                # opening image will PIL and saving to ./images
                                 with PIL.Image.open(r.raw) as img:
                                     img.save(f'./images/{img_url.split("/")[-1]}')
 
                                 print(f'img {img_url} saved successfully')
                                 attempts = 5
+
                             except:
                                 print(f'error {sys.exc_info()[0]} saving image {img_url}')
 
@@ -170,8 +185,13 @@ class SubScraper:
                             attempts = 5
 
             except StopIteration:
+
+                # end of generator
                 print("end of urls")
                 complete = True
 
             except ValueError:
+
+                # too many threads request from generator at the sametime sometimes it will throw a value error, this
+                # will sleep for a short amount of time to allow the generator to recover
                 time.sleep(0.0005)
