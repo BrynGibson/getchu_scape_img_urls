@@ -5,11 +5,12 @@ import threading
 
 def img_url_gen(img_urls_df):
 
+    # this geneator is used to yield a single row from the img_url dataframe to each subscraper
+
     index = 0
 
     while index < img_urls_df.index.size:
         yield img_urls_df.iloc[index]
-        print(index)
         index +=1
 
 
@@ -22,15 +23,7 @@ def url_gen(urls_df):
     while index < urls_df.index.size:
 
         yield urls_df.iloc[[index]].index.values[0]
-        print(index)
         index += 1
-
-    # for testing without using full dataset
-
-    # while index < 100:
-    #
-    #     index += 1
-
 
 class MotherScraper:
 
@@ -53,19 +46,19 @@ class MotherScraper:
             self.urls_df["found_char_imgs"] = None
             self.urls_df["img_urls"] = None
 
-
-
+            # creating url generator
             self.url_gen = url_gen(self.urls_df)
 
         if img_urls_loc:
             self.img_urls_df = pd.read_csv(img_urls_loc)
-            self.img_url_gen = img_url_gen(img_urls_df=self.img_urls_df)
 
+            # creating image url generator
+            self.img_url_gen = img_url_gen(img_urls_df=self.img_urls_df)
 
         # initializing sub scrapers, this may take a few mins
 
         print("initializing sub scrapers, this may take a few mins")
-        self.sub_scrapers = [SubScraper(url_gen=self.url_gen, df_urls=self.urls_df, img_url_gen=self.img_url_gen) for i in range(0, self.workers)]
+        self.sub_scrapers = [SubScraper(url_gen=self.url_gen, df_urls=self.urls_df, img_url_gen=self.img_url_gen) for _ in range(0, self.workers)]
 
     def scrape(self):
 
@@ -78,6 +71,8 @@ class MotherScraper:
 
     def download_images(self):
 
+        # this method is will execute the download images methods of all sub_scrapers in parallel
+        # images will be saved to ./images/
         for scraper in self.sub_scrapers:
             threading.Thread(target=scraper.download_images).start()
 
