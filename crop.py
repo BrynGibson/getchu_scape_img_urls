@@ -13,9 +13,13 @@ WORKERS = 50
 
 
 def crop(img_loc_gen):
+
+    count = 1
     while True:
         try:
             detect(str(next(img_loc_gen)))
+            print(count)
+            count += 1
         except StopIteration:
             print("end of images")
             break
