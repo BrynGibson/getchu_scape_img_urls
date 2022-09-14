@@ -8,3 +8,5 @@ the temporary verifcation cookies were serialized and passed into a Python progr
 Code is able to scrape image urls and download images from http://www.getchu.com
 
 imgs_urls.csv contains 51916 character image urls collected from 9438 games / visual novels on getchu.com
+
+A pretrained OpenCV Cascading classifier model was then used to indentify the face from the images and crop the images down to just the faces.
